@@ -1,7 +1,8 @@
-// Content script: finds title/artist text on YouTube Music and swaps non-Latin text for English.
+// Content script: finds title/artist text on YouTube Music, Spotify and Apple Music
+// and swaps non-Latin text for English.
 
-// Structural tags first (class names get shuffled by Google).
-const SELECTORS = [
+// YouTube Music: structural tags first (class names get shuffled by Google).
+const YTM_SELECTORS = [
   "ytmusic-player-bar .title",
   "ytmusic-player-bar .byline",
   "ytmusic-player-queue-item .song-title",
@@ -21,7 +22,41 @@ const SELECTORS = [
   "ytmusic-player-page .byline",
   "ytmusic-playlist-shelf-renderer yt-formatted-string",
   "ytmusic-card-shelf-renderer yt-formatted-string",
-].join(",");
+];
+
+// Spotify web player: links to tracks/albums/artists/playlists carry every name,
+// including the now-playing bar; cards and tracklist rows have stable test ids.
+const SPOTIFY_SELECTORS = [
+  'a[href*="/track/"]',
+  'a[href*="/album/"]',
+  'a[href*="/artist/"]',
+  'a[href*="/playlist/"]',
+  'a[href*="/concert/"]',
+  '[data-testid="internal-track-link"]',
+  '[data-encore-id="cardTitle"]',
+  '[data-encore-id="cardSubtitle"]',
+  '[data-testid="tracklist-row"] a',
+  'h1',
+];
+
+// Apple Music web player: specific test ids only (its footer lists language names
+// in their own scripts, which must not be translated).
+const APPLE_SELECTORS = [
+  '[data-testid="non-editable-product-title"]',
+  ".headings__subtitles a",
+  '[data-testid="track-title"]',
+  ".songs-list-row__by-line a",
+  '[data-testid="product-lockup-title"]',
+  ".product-lockup__subtitle a",
+  '[data-testid="top-search-result-title"]',
+  '[data-testid="top-search-result-subtitle"]',
+];
+
+const SELECTORS = (
+  location.hostname === "open.spotify.com" ? SPOTIFY_SELECTORS :
+  location.hostname === "music.apple.com" ? APPLE_SELECTORS :
+  YTM_SELECTORS
+).join(",");
 
 // Any letter that is NOT Latin / common script => needs translating (so "Beyoncé" is left alone).
 const NON_LATIN = /[\p{L}\p{M}](?<![\p{Script=Latin}\p{Script=Common}\p{Script=Inherited}])/u;

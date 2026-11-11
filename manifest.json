@@ -1,14 +1,18 @@
 {
   "manifest_version": 3,
-  "name": "YT Music Title Translator",
-  "version": "1.1",
-  "description": "Auto-translates non-English song titles, artists and albums on YouTube Music.",
+  "name": "Music Title Translator",
+  "version": "1.2",
+  "description": "Auto-translates non-English song titles, artists and albums on YouTube Music, Spotify and Apple Music.",
   "permissions": ["storage"],
   "host_permissions": ["https://translate.googleapis.com/*"],
   "background": { "service_worker": "background.js" },
   "content_scripts": [
     {
-      "matches": ["https://music.youtube.com/*"],
+      "matches": [
+        "https://music.youtube.com/*",
+        "https://open.spotify.com/*",
+        "https://music.apple.com/*"
+      ],
       "js": ["content.js"],
       "run_at": "document_idle"
     }
