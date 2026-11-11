@@ -44,4 +44,4 @@ Song titles and artist names that need translating are sent to Google Translate 
 
 ## License
 
-MIT, see [LICENSE](LICENSE).
+MIT, see [LICENSE](LICENSE). Privacy policy: [PRIVACY.md](PRIVACY.md).
