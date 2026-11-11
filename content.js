@@ -102,22 +102,35 @@ function setTextInPlace(el, text) {
   nodes.slice(1).forEach((n) => n.remove());
 }
 
+// Artist names get romanized instead of translated (see background.js).
+// Artist links: YouTube Music uses channel/UC..., Spotify and Apple Music use /artist/.
+// On an artist's own page, the big header title is the artist name too.
+const ARTIST_LINK = 'a[href*="/artist/"], a[href^="channel/"], a[href*="/channel/"]';
+const ARTIST_HEADER = "h1, ytmusic-immersive-header-renderer .title, ytmusic-visual-header-renderer .title";
+function isArtist(el) {
+  if (el.closest(ARTIST_LINK)) return true;
+  return /\/(artist|channel)\//.test(location.pathname) && !!el.closest(ARTIST_HEADER);
+}
+
 async function flush() {
   const els = [...pending];
   pending.clear();
-  const texts = [...new Set(els.map((e) => e.textContent.trim()).filter(Boolean))];
-  if (!texts.length) return;
+  const kinds = new Map(els.map((e) => [e, isArtist(e) ? "a" : "t"]));
+  const uniq = (k) => [...new Set(els.filter((e) => kinds.get(e) === k)
+    .map((e) => e.textContent.trim()).filter(Boolean))];
+  const texts = uniq("t"), artists = uniq("a");
+  if (!texts.length && !artists.length) return;
   const asked = target;
   let result;
   try {
-    result = await chrome.runtime.sendMessage({ type: "translate", texts, target: asked });
+    result = await chrome.runtime.sendMessage({ type: "translate", texts, artists, target: asked });
   } catch (e) {
     return; // extension reloaded / worker asleep; next mutation retries
   }
-  if (asked !== target) return; // language changed while we waited
+  if (asked !== target || !result) return; // language changed while we waited
   for (const el of els) {
     const orig = el.textContent.trim();
-    const tr = result && result[orig];
+    const tr = result[kinds.get(el)][orig];
     if (!tr || tr === orig) continue;
     el.dataset.ytmTr = tr;
     el.dataset.ytmOrig = orig;
@@ -168,7 +181,7 @@ async function fixTitle() {
   const asked = target;
   try {
     const res = await chrome.runtime.sendMessage({ type: "translate", texts: [t], target: asked });
-    const tr = res && res[t];
+    const tr = res && res.t[t];
     if (asked === target && tr && tr !== t) {
       lastTitleOrig = t;
       lastTitleSet = tr;

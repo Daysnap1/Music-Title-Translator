@@ -12,6 +12,7 @@ None of them has an option to translate titles. If you listen to Japanese, Korea
 
 - Translates titles, artists and albums in the player bar, queue, playlists, search results, album pages and the browser tab title
 - **Pick your language** from the toolbar icon: 21 languages, including English, Spanish, Russian, Japanese, Korean, Chinese and Arabic. The switch applies instantly, with no reload
+- **Artist names are romanized, not translated**, because they're names: Кино becomes *Kino* (not "Movie"), Земфира becomes *Zemfira*. Names written in Chinese characters keep Google's known name instead (米津玄師 becomes *Kenshi Yonezu*), because romanizing those guesses wrong
 - **Hover** any translated title to see the original
 - Only translates text in scripts other than Latin and your own language's script, so "Beyoncé" is left alone, and with Russian selected, Cyrillic titles are too
 - Caches translations locally, so each title is translated only once
