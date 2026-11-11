@@ -58,9 +58,20 @@ const SELECTORS = (
   YTM_SELECTORS
 ).join(",");
 
-// Any letter that is NOT Latin / common script => needs translating (so "Beyoncé" is left alone).
-const NON_LATIN = /[\p{L}\p{M}](?<![\p{Script=Latin}\p{Script=Common}\p{Script=Inherited}])/u;
-const needsTranslation = (s) => NON_LATIN.test(s);
+// ---- Which text needs translating ----
+// A letter outside Latin/common script AND outside the target language's own scripts.
+// (So "Beyoncé" is left alone, and with Russian selected, Cyrillic titles are too.)
+let target = DEFAULT_TARGET;
+let NEEDS = null;
+
+function setTarget(code) {
+  target = code;
+  const lang = LANGUAGES.find((l) => l.code === code) || LANGUAGES[0];
+  const skip = ["Latin", "Common", "Inherited", ...lang.scripts]
+    .map((s) => String.raw`\p{Script=${s}}`).join("");
+  NEEDS = new RegExp(String.raw`[\p{L}\p{M}](?<![` + skip + "])", "u");
+}
+const needsTranslation = (s) => NEEDS.test(s);
 
 const pending = new Set();
 let timer = null;
@@ -82,7 +93,7 @@ function queue(el) {
   timer = setTimeout(flush, 150);
 }
 
-// Edit YouTube's own text node instead of replacing it, so its renderer keeps working
+// Edit the site's own text node instead of replacing it, so its renderer keeps working
 // and no stale text nodes pile up when the song changes.
 function setTextInPlace(el, text) {
   const nodes = [...el.childNodes].filter((n) => n.nodeType === 3);
@@ -96,12 +107,14 @@ async function flush() {
   pending.clear();
   const texts = [...new Set(els.map((e) => e.textContent.trim()).filter(Boolean))];
   if (!texts.length) return;
+  const asked = target;
   let result;
   try {
-    result = await chrome.runtime.sendMessage({ type: "translate", texts });
+    result = await chrome.runtime.sendMessage({ type: "translate", texts, target: asked });
   } catch (e) {
     return; // extension reloaded / worker asleep; next mutation retries
   }
+  if (asked !== target) return; // language changed while we waited
   for (const el of els) {
     const orig = el.textContent.trim();
     const tr = result && result[orig];
@@ -111,6 +124,20 @@ async function flush() {
     el.title = orig; // hover shows the original title
     setTextInPlace(el, tr);
   }
+}
+
+// Put every original back (used when the target language changes).
+function restoreAll() {
+  pending.clear();
+  for (const el of document.querySelectorAll("[data-ytm-orig]")) {
+    const orig = el.dataset.ytmOrig;
+    if (el.textContent.trim() === el.dataset.ytmTr) setTextInPlace(el, orig);
+    if (el.title === orig) el.removeAttribute("title");
+    delete el.dataset.ytmTr;
+    delete el.dataset.ytmOrig;
+  }
+  if (lastTitleSet && document.title === lastTitleSet) document.title = lastTitleOrig;
+  lastTitleSet = null;
 }
 
 const observer = new MutationObserver((muts) => {
@@ -129,23 +156,21 @@ const observer = new MutationObserver((muts) => {
   }
 });
 
-observer.observe(document.body, { childList: true, subtree: true, characterData: true });
-scan(document.body);
-// Safety net: Polymer sometimes re-renders text without a clean mutation.
-setInterval(() => scan(document.body), 3000);
-
 // ---- Tab title ----
 let lastTitleSet = null;
+let lastTitleOrig = null;
 let titleBusy = false;
 
 async function fixTitle() {
   const t = document.title;
   if (titleBusy || t === lastTitleSet || !needsTranslation(t)) return;
   titleBusy = true;
+  const asked = target;
   try {
-    const res = await chrome.runtime.sendMessage({ type: "translate", texts: [t] });
+    const res = await chrome.runtime.sendMessage({ type: "translate", texts: [t], target: asked });
     const tr = res && res[t];
-    if (tr && tr !== t) {
+    if (asked === target && tr && tr !== t) {
+      lastTitleOrig = t;
       lastTitleSet = tr;
       document.title = tr;
     }
@@ -162,4 +187,22 @@ function watchTitle() {
   new MutationObserver(fixTitle).observe(el, { childList: true, characterData: true, subtree: true });
   fixTitle();
 }
-watchTitle();
+
+// ---- Start ----
+chrome.storage.sync.get({ target: DEFAULT_TARGET }, (o) => {
+  setTarget(o.target);
+  observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+  scan(document.body);
+  // Safety net: some sites re-render text without a clean mutation.
+  setInterval(() => scan(document.body), 3000);
+  watchTitle();
+});
+
+// Language picked in the popup: undo current translations and redo them in the new language.
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area !== "sync" || !changes.target) return;
+  restoreAll();
+  setTarget(changes.target.newValue || DEFAULT_TARGET);
+  scan(document.body);
+  fixTitle();
+});

@@ -1,6 +1,6 @@
 # Music Title Translator
 
-A Chrome extension that translates non-English song titles, artists and albums into English, right on the page, on:
+A Chrome extension that translates song titles, artists and albums written in scripts you can't read into your language, right on the page, on:
 
 - [YouTube Music](https://music.youtube.com)
 - [Spotify Web Player](https://open.spotify.com)
@@ -11,10 +11,11 @@ None of them has an option to translate titles. If you listen to Japanese, Korea
 ## Features
 
 - Translates titles, artists and albums in the player bar, queue, playlists, search results, album pages and the browser tab title
+- **Pick your language** from the toolbar icon: 21 languages, including English, Spanish, Russian, Japanese, Korean, Chinese and Arabic. The switch applies instantly, with no reload
 - **Hover** any translated title to see the original
-- Only translates text in non-Latin scripts, so names like "Beyoncé" or "Sigur Rós" are left alone
+- Only translates text in scripts other than Latin and your own language's script, so "Beyoncé" is left alone, and with Russian selected, Cyrillic titles are too
 - Caches translations locally, so each title is translated only once
-- Small and dependency-free: three files, no build step
+- Small and dependency-free, no build step
 
 ## Install
 
@@ -36,7 +37,7 @@ Song titles and artist names that need translating are sent to Google Translate 
 ## Limitations
 
 - Uses Google Translate's free public endpoint, which can rate-limit heavy use
-- Translates into English only (for now)
+- Foreign titles written in the Latin alphabet (Spanish, French, ...) are not translated, by design
 - Works in the browser only, not in the Spotify or Apple Music desktop apps
 - These sites change their page structure from time to time; if titles stop translating, the selectors in `content.js` may need updating
 

@@ -1,0 +1,26 @@
+// Target languages. `scripts` = writing systems a reader of that language can already read,
+// so text in them is left untranslated (Latin is always left alone; see content.js).
+const LANGUAGES = [
+  { code: "en", name: "English", scripts: [] },
+  { code: "es", name: "Español (Spanish)", scripts: [] },
+  { code: "fr", name: "Français (French)", scripts: [] },
+  { code: "de", name: "Deutsch (German)", scripts: [] },
+  { code: "pt", name: "Português (Portuguese)", scripts: [] },
+  { code: "it", name: "Italiano (Italian)", scripts: [] },
+  { code: "pl", name: "Polski (Polish)", scripts: [] },
+  { code: "tr", name: "Türkçe (Turkish)", scripts: [] },
+  { code: "vi", name: "Tiếng Việt (Vietnamese)", scripts: [] },
+  { code: "id", name: "Bahasa Indonesia (Indonesian)", scripts: [] },
+  { code: "ru", name: "Русский (Russian)", scripts: ["Cyrillic"] },
+  { code: "uk", name: "Українська (Ukrainian)", scripts: ["Cyrillic"] },
+  { code: "el", name: "Ελληνικά (Greek)", scripts: ["Greek"] },
+  { code: "ar", name: "العربية (Arabic)", scripts: ["Arabic"] },
+  { code: "he", name: "עברית (Hebrew)", scripts: ["Hebrew"] },
+  { code: "hi", name: "हिन्दी (Hindi)", scripts: ["Devanagari"] },
+  { code: "th", name: "ไทย (Thai)", scripts: ["Thai"] },
+  { code: "ja", name: "日本語 (Japanese)", scripts: ["Han", "Hiragana", "Katakana"] },
+  { code: "ko", name: "한국어 (Korean)", scripts: ["Hangul", "Han"] },
+  { code: "zh-CN", name: "简体中文 (Chinese, Simplified)", scripts: ["Han"] },
+  { code: "zh-TW", name: "繁體中文 (Chinese, Traditional)", scripts: ["Han"] },
+];
+const DEFAULT_TARGET = "en";
