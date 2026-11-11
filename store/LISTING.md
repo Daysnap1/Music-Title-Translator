@@ -32,7 +32,7 @@ Privacy: only the titles that need translating are sent to Google Translate. No 
 
 Works in Chrome's web players only, not in the Spotify or Apple Music desktop apps.
 
-Open source: https://github.com/YOUR-USERNAME/YOUR-REPO
+Open source: https://github.com/Daysnap1/-music-title-translator
 
 **Icon:** icons/icon128.png
 
@@ -57,4 +57,4 @@ Translates song titles, album names and artist names written in unfamiliar scrip
 - Check **Website content** (song titles/artist names are sent for translation). Leave everything else unchecked.
 - Check all three certifications (not sold to third parties, not used for unrelated purposes, not used for creditworthiness).
 
-**Privacy policy URL:** https://github.com/YOUR-USERNAME/YOUR-REPO/blob/main/PRIVACY.md
+**Privacy policy URL:** https://github.com/Daysnap1/-music-title-translator/blob/main/PRIVACY.md
