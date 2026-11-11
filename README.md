@@ -26,7 +26,7 @@ None of them has an option to translate titles. If you listen to Japanese, Korea
 
 ## How it works
 
-- `content.js` watches the player's page for title and artist elements, finds any containing non-Latin script, and replaces their text in place (without breaking YouTube's own rendering).
+- `content.js` watches the player's page for title and artist elements, finds any containing non-Latin script, and replaces their text in place (without breaking the site's own rendering).
 - `background.js` translates the batched text through Google Translate and stores the results in `chrome.storage.local` (up to 20,000 entries).
 
 ## Privacy
