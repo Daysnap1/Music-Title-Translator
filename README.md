@@ -1,5 +1,7 @@
 # Music Title Translator
 
+**[➜ Install from the Chrome Web Store](https://chromewebstore.google.com/detail/music-title-translator/jibbhhidfadliehbcoigblpjgilodldo)**
+
 A Chrome extension that translates song titles, artists and albums written in scripts you can't read into your language, right on the page, on:
 
 - [YouTube Music](https://music.youtube.com)
